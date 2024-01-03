@@ -294,89 +294,95 @@ class SecondPage extends StatelessWidget {
     );
   }
 }
+class ThirdPage extends StatefulWidget {
+  @override
+  _NewTaskState createState() => _NewTaskState();
+}
 
-class ThirdPage extends StatelessWidget {
+class _NewTaskState extends State {
+  String taskName = '';
+  String category = 'Personal';
+  DateTime dueDate = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+     
       appBar: AppBar(
-        title: Text(
-          'New Task',
-          textAlign: TextAlign.center,
-        ),
+        
+         backgroundColor: Colors.blueAccent,
+        title: Text('New Task'),
       ),
-      body: Center(
-        child:Container(
-          padding: EdgeInsets.fromLTRB(0.0, 80.0, 0.0, 0.0),
-           width: double.maxFinite,
-        height: double.maxFinite,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment(0, 0),
-            end: Alignment(0, 1),
-            colors: [
-              Color(0xFFC7CCF5),
-              Color(0x00FFFFFF), // Transparent white
-              Color(0xFFB8BDEA),
-            ],
-            stops: [0.7873, 1.0924, 1.0924],
-          ),
-        ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              
-              width: 300.0,
-            child:  Form(
-              key: _formKey,
-              child: Column(children: [
-                Text('What is to be done?',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w700,
-                ),),
-                TextFormField(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enter Something';
-                    }
-                    return null;
-                  },
+            Text(
+              'What is to be done?',
+              style: TextStyle(fontSize: 16),
+            ),
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  taskName = value;
+                });
+              },
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Due Date',
+              style: TextStyle(fontSize: 16),
+            ),
+            Row(
+              children: [
+                Icon(Icons.calendar_today),
+                SizedBox(width: 8),
+                Text(
+                  '${dueDate.day}/${dueDate.month}/${dueDate.year}',
+                  style: TextStyle(fontSize: 16),
                 ),
-                 Text('Due Date',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.w700,
-                ),),
-                TextFormField(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enter Something';
-                    }
-                    return null;
-                  },
+                SizedBox(width: 8),
+                Icon(Icons.access_time),
+                SizedBox(width: 8),
+                Text(
+                  '${dueDate.hour}:${dueDate.minute}',
+                  style: TextStyle(fontSize: 16),
                 ),
-                TextFormField(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enter Something';
-                    }
-                    return null;
-                  },
-                ),
-                FloatingActionButton(onPressed: (){},
-                child: Text('Add'),)
-              ]),
-            
-            )
-
-            )
-           
+              ],
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Category',
+              style: TextStyle(fontSize: 16),
+            ),
+            DropdownButton<String>(
+              value: category,
+              onChanged: (value) {
+                setState(() {
+                  category = value!;
+                });
+              },
+              items: <String>['Personal', 'Work', 'Shopping', 'Others']
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+            Spacer(),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: FloatingActionButton(
+                onPressed: () {},
+                child: Icon(Icons.check),
+              ),
+            ),
           ],
         ),
-        )
-       
       ),
     );
+  
   }
 }

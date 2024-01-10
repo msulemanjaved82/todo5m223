@@ -1,0 +1,35 @@
+{
+    "task":[
+        {
+            "id":"1",
+            "name":"UI Challenge",
+            "time":"Mon 8th Jan 2024 at 5:00pm",
+            "task":"Work"
+        },
+        {
+            "id":"2",
+            "name":"Instagram Posting",
+            "time":"Tue 9th Jan 2024 at 9:00pm",
+            "task":"Personal"
+        },
+        {
+            "id":"3",
+            "name":"Reading an Article",
+            "time":"Wed 10th Jan 2024 5:00am",
+            "task":"Personal"
+        },
+        {
+            "id":"4",
+            "name":"Going to the Gym",
+            "time":"Thurs 11th Jan 2024 6:00am",
+            "task":"Health"
+        },
+        {
+            "id":"5",
+            "name":"Laptop purchase",
+            "time":"Fri 12th Jan 2024 8:00pm",
+            "task":"Shopping"
+        }
+        
+    ]
+}

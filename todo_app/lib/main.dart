@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 
 final _formKey = GlobalKey<FormState>();
 void main() {
@@ -113,7 +116,34 @@ class RoundButton extends StatelessWidget {
   );
 }
 
-class SecondPage extends StatelessWidget {
+class SecondPage extends StatefulWidget {
+  @override
+  _SecondPageState createState() => _SecondPageState();
+}
+
+class _SecondPageState extends State<SecondPage> {
+  List _task = [];
+  @override
+  void initState() {
+    super.initState();
+    // Load JSON when the widget is initialized
+    readJson();
+  }
+
+  Future<void> readJson() async {
+    try {
+      final String response = await rootBundle.loadString('/tasks.json');
+      final data = await json.decode(response);
+      setState(() {
+        _task = data["task"];
+        print('number of tasks ${_task.length}');
+      });
+    } catch (e) {
+      // Handle error loading JSON (e.g., file not found, JSON format error)
+      print('Error loading JSON: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,18 +164,21 @@ class SecondPage extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              Icon(
-                Icons.menu_rounded,
-                color: Colors.black,
-                size: 50.0,
-              ),
-              Icon(
-                Icons.account_box_rounded,
-                color: Colors.black,
-                size: 50.0,
-              )
-            ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Icon(
+                  Icons.menu_rounded,
+                  color: Colors.black,
+                  size: 50.0,
+                ),
+                Icon(
+                  Icons.account_box_rounded,
+                  color: Colors.black,
+                  size: 50.0,
+                )
+              ],
+            ),
             Container(
               margin: const EdgeInsets.all(15.0),
               padding: const EdgeInsets.all(3.0),
@@ -166,12 +199,9 @@ class SecondPage extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  SizedBox(
-                      width: 10.0), // Add some spacing between text and icon
+                  SizedBox(width: 10.0),
                   Transform.rotate(
-                    angle: 45 *
-                        3.141592653589793 /
-                        180, // Rotate 45 degrees in radians
+                    angle: 45 * 3.141592653589793 / 180,
                     child: Icon(
                       Icons.note_add_sharp,
                       size: 66.0,
@@ -256,6 +286,76 @@ class SecondPage extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
+            _task.isNotEmpty
+                ? Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          key: ValueKey(_task[index]["id"]),
+                          child: Container(
+                            margin: const EdgeInsets.all(15.0),
+                            padding: const EdgeInsets.all(20.0),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.blueAccent),
+                                color: Colors.blue),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    IconButton(
+                                        onPressed: () => {},
+                                        icon: Icon(
+                                          Icons.edit_note_rounded,
+                                          size: 30.0,
+                                        )),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Text(
+                                          _task[index]["name"],
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16.0,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        Text(
+                                          _task[index]["task"],
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 15.0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      _task[index]["time"],
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    IconButton(
+                                        onPressed: () => {},
+                                        icon: Icon(
+                                          Icons.delete_forever_rounded,
+                                          size: 30.0,
+                                        ))
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      itemCount: _task.length,
+                    ),
+                  )
+                : Container(
+                    child: Text('No Task Available'),
+                  )
           ],
         ),
       ),
@@ -294,69 +394,109 @@ class SecondPage extends StatelessWidget {
     );
   }
 }
+
+// class SecondPage extends StatelessWidget {
+//   List _task = [];
+//   Future<void> readJson() async {
+//     final String response = await rootBundle.loadString('assets/tasks.json');
+//     final data = await json.decode(response);
+//     setstate(() {
+//       _task = data["task"]
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+
+//   }
+// }
+
 class ThirdPage extends StatefulWidget {
   @override
   _NewTaskState createState() => _NewTaskState();
+  final _formKey = GlobalKey<FormState>();
 }
 
-class _NewTaskState extends State {
-  String taskName = '';
+class _NewTaskState extends State<ThirdPage> {
+  TextEditingController _dateController = TextEditingController();
+  TimeOfDay? selectedTime;
   String category = 'Personal';
-  DateTime dueDate = DateTime.now();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
       appBar: AppBar(
-        
-         backgroundColor: Colors.blueAccent,
         title: Text('New Task'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'What is to be done?',
-              style: TextStyle(fontSize: 16),
+      body:Container(
+        margin: EdgeInsets.fromLTRB(40.0, 20.0, 40.0, 20.0),
+child:Column(
+        
+        children: [
+          Text('What is to be done?'),
+          Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+         
+          TextFormField(
+            // The validator receives the text that the user has entered.
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter some text';
+              }
+              return null;
+            },
+          ),
+          SizedBox(
+            height: 50.0,
+          ),
+           Text('Due Date And Time'),
+           SizedBox(
+            height: 20.0,
+           ),
+  TextField(
+            controller: _dateController,
+            decoration: InputDecoration(
+              labelText: 'DATE',
+              filled: true,
+              prefixIcon: Icon(Icons.calendar_today),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue)),
             ),
-            TextField(
-              onChanged: (value) {
-                setState(() {
-                  taskName = value;
-                });
+            readOnly: true,
+            onTap: () {
+              _selectDate();
+            },
+          ),
+          SizedBox(
+            height: 30.0,
+          ),
+
+       
+
+ ElevatedButton(
+  
+              onPressed: () {
+                _selectTime(context);
               },
+              child: Icon(Icons.date_range),
             ),
-            SizedBox(height: 16),
-            Text(
-              'Due Date',
-              style: TextStyle(fontSize: 16),
-            ),
-            Row(
-              children: [
-                Icon(Icons.calendar_today),
-                SizedBox(width: 8),
-                Text(
-                  '${dueDate.day}/${dueDate.month}/${dueDate.year}',
-                  style: TextStyle(fontSize: 16),
-                ),
-                SizedBox(width: 8),
-                Icon(Icons.access_time),
-                SizedBox(width: 8),
-                Text(
-                  '${dueDate.hour}:${dueDate.minute}',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Category',
-              style: TextStyle(fontSize: 16),
-            ),
-            DropdownButton<String>(
+            SizedBox(height: 20),
+            if (selectedTime != null)
+              Text(
+                'Selected Time: ${selectedTime!.format(context)}',
+                style: TextStyle(fontSize: 18),
+              ),
+        
+        Text('Category'),
+SizedBox(height: 20.0,),   
+ Row(
+  children: [
+    DropdownButton<String>(
               value: category,
               onChanged: (value) {
                 setState(() {
@@ -371,18 +511,74 @@ class _NewTaskState extends State {
                 );
               }).toList(),
             ),
-            Spacer(),
+            SizedBox(
+              width: 20.0,
+            ),
+            Icon(Icons.list_alt_rounded)
+  ],
+ ),
             Align(
               alignment: Alignment.bottomRight,
-              child: FloatingActionButton(
-                onPressed: () {},
-                child: Icon(Icons.check),
-              ),
+              child:Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: FloatingActionButton(
+              
+              onPressed: () {
+                // Validate returns true if the form is valid, or false otherwise.
+                if (_formKey.currentState!.validate()) {
+                  // If the form is valid, display a snackbar. In the real world,
+                  // you'd often call a server or save the information in a database.
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Processing Data')),
+                  );
+                }
+                
+              },
+              child: const Icon(Icons.check),
+              
             ),
-          ],
-        ),
+          ),
+            ),
+          
+         
+        ],
       ),
+    )
+          ,
+          // Display the selected date if available
+        ],
+      ),
+      )
+      
+       
     );
-  
   }
+
+  Future<void> _selectDate() async {
+    DateTime? _picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (_picked != null) {
+      setState(() {
+        _dateController.text = _picked.toString().split(' ')[0];
+      });
+
+    }
+
+  }
+ Future<void> _selectTime(BuildContext context) async {
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+     if (pickedTime != null && pickedTime != selectedTime) {
+      setState(() {
+        selectedTime = pickedTime;
+      });
+    }
+  }
+
 }

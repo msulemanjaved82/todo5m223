@@ -338,7 +338,7 @@ class _SecondPageState extends State<SecondPage> {
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     IconButton(
-                                        onPressed: () => {},
+                                        onPressed: () => _deleteTask(index),
                                         icon: Icon(
                                           Icons.delete_forever_rounded,
                                           size: 30.0,
@@ -393,7 +393,14 @@ class _SecondPageState extends State<SecondPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
+  void _deleteTask(int index) {
+  setState(() {
+    // Remove the task at the specified index
+    _task.removeAt(index);
+  });
 }
+}
+
 
 // class SecondPage extends StatelessWidget {
 //   List _task = [];
